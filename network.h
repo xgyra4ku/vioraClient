@@ -9,15 +9,22 @@
 
 class Network
 {
-private:
+    MainWindow *w;
     sockaddr_in serverAddr, clientAddr;
     SOCKET clientSocket;
     void ReceiveMessages(SOCKET socket, MainWindow &w);
 
-    std::thread threadReceiveMessage;
-    bool isConnected;
+    std::thread* threadReceiveMessage;
+    bool isConnected, stop_flag;
 public:
-    Network();
+    Network(MainWindow& w);
+    ~Network();
+
+    void startThreadReceiveMessage();
+
+    void stopThreadReceiveMessage();
+
+    bool tryConnection();
 };
 
 #endif // NETWORK_H

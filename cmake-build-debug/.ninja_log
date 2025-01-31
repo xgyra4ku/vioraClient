@@ -1,0 +1,20 @@
+# ninja log v5
+935	8356	7600127872569219	CMakeFiles/voicebet.dir/core.cpp.obj	bdd8c2ae3d7f8110
+920	8253	7600127871447885	CMakeFiles/voicebet.dir/main.cpp.obj	4bdba7724109885a
+917	7846	7600127867362523	CMakeFiles/voicebet.dir/voicebet_autogen/mocs_compilation.cpp.obj	1fbaf8a23bd774b8
+178	911	7600127797427068	E:/C_Projects/qt_p/voicebet/cmake-build-debug/voicebet_autogen/timestamp	4eac578d12c960d3
+924	7860	7600127867565001	CMakeFiles/voicebet.dir/mainwindow.cpp.obj	e1f59a014f420e70
+178	911	7600127797427068	voicebet_autogen/mocs_compilation.cpp	4eac578d12c960d3
+178	911	7600127797427068	E:/C_Projects/qt_p/voicebet/cmake-build-debug/voicebet_autogen/mocs_compilation.cpp	4eac578d12c960d3
+178	911	7600127797427068	voicebet_autogen/timestamp	4eac578d12c960d3
+147	3215	7600128856401404	build.ninja	ace3451666e63dc4
+16	201	7600128844518462	E:/C_Projects/qt_p/voicebet/cmake-build-debug/CMakeFiles/cmake.verify_globs	306305933bd9f2cf
+201	1362	7600128856401404	build.ninja	ace3451666e63dc4
+12	135	0	E:/C_Projects/qt_p/voicebet/cmake-build-debug/CMakeFiles/cmake.verify_globs	306305933bd9f2cf
+150	333	7600128842480204	voicebet_autogen/timestamp	4eac578d12c960d3
+150	333	7600128842480204	voicebet_autogen/mocs_compilation.cpp	4eac578d12c960d3
+150	333	7600128842480204	E:/C_Projects/qt_p/voicebet/cmake-build-debug/voicebet_autogen/timestamp	4eac578d12c960d3
+150	333	7600128842480204	E:/C_Projects/qt_p/voicebet/cmake-build-debug/voicebet_autogen/mocs_compilation.cpp	4eac578d12c960d3
+344	3103	7600128888356843	CMakeFiles/voicebet.dir/mainwindow.cpp.obj	e1f59a014f420e70
+348	4752	7600128904828558	CMakeFiles/voicebet.dir/network.cpp.obj	6ad2321b5184ac7c
+4752	5437	7600128911637441	voicebet.exe	20bad752b5180736
