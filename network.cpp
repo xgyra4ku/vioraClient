@@ -4,6 +4,7 @@
 
 #include <QMainWindow>
 #include <iostream>
+#include <utility>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
@@ -11,7 +12,8 @@ Network::Network(MainWindow& w)
     : isConnected(false)
     , clientSocket{}
     , serverAddr{}
-    , stop_flag(false)
+    , stop_flag_receive(false)
+    , stop_flag_send(false)
     , w(&w)
 {
     WSADATA wsaData;
@@ -30,7 +32,7 @@ Network::Network(MainWindow& w)
 }
 
 Network::~Network() {
-    stop_flag = true;
+    stop_flag_receive = true;
     if (threadReceiveMessage->joinable()){
         threadReceiveMessage->join();
     }
@@ -38,21 +40,65 @@ Network::~Network() {
     WSACleanup();
 }
 void Network::startThreadReceiveMessage(){
-    stop_flag = false;
+    stop_flag_receive = false;
     threadReceiveMessage = new std::thread(&Network::ReceiveMessages, this, clientSocket, std::ref(*w));
 }
 
 void Network::stopThreadReceiveMessage(){
-    stop_flag = true;
+    stop_flag_receive = true;
     if (threadReceiveMessage->joinable()){
         threadReceiveMessage->join();
+    }
+}
+
+void Network::startThreadSendMessage(){
+    stop_flag_send = false;
+    threadSendMessage = new std::thread(&Network::SendMessages, this, clientSocket, std::ref(*w));
+}
+
+void Network::stopThreadSendMessage(){
+    stop_flag_send = true;
+    if (threadReceiveMessage->joinable()){
+        threadReceiveMessage->join();
+    }
+}
+
+void Network::addMessageToBuffer(std::string message) {
+    Message msg;
+    msg.data["msg"] = std::move(message);
+    msg.data["key"] = generateCode();
+    msg.data["type"] = "message";
+    newMessages.push_back(msg);
+}
+
+void Network::SendMessages(SOCKET socket, MainWindow &w) {
+    while (!stop_flag_send) {
+        if (isConnected) {
+            if (newMessages.empty()) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(300));
+                continue;
+            }
+            Message bufferMsg = newMessages.back();
+            newMessages.pop_back();
+            std::vector<char> buffer = bufferMsg.serialize();
+            int bytesSent = send(socket, buffer.data(), buffer.size(), 0);
+            if (bytesSent <= 0) {
+                std::cout << "Disconnected from server\n";
+                isConnected = false;
+                //break;
+            }
+        } else {
+            std::cout << "Try connection to server" << std::endl;
+            isConnected = tryConnection();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
     }
 }
 
 void Network::ReceiveMessages(SOCKET socket, MainWindow &w) {
     Message bufferMsg;
     std::vector<char> receivedBuffer(1024);
-    while (!stop_flag) {
+    while (!stop_flag_receive) {
         if (isConnected) {
             int bytesReceived = recv(socket, receivedBuffer.data(), receivedBuffer.size(), 0);
             if (bytesReceived <= 0) {
@@ -89,5 +135,21 @@ bool Network::tryConnection(){
 
 }
 
+std::string Network::generateCode(const int length = 6) {
+    const std::string characters =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+    std::random_device rd;
+    std::mt19937 generator(rd());
+    std::uniform_int_distribution<> distribution(0, characters.size() - 1);
+
+    std::string code;
+    for(int i = 0; i < length; ++i) {
+        code += characters[distribution(generator)];
+    }
+    return code;
+}
 
 

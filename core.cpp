@@ -14,7 +14,6 @@ Core::Core(QApplication &a)
     w = new MainWindow();
     w->show();
     network = new Network(*w);
-    network->startThreadReceiveMessage();
 }
 
 Core::~Core() {
@@ -25,5 +24,6 @@ Core::~Core() {
 
 
 void Core::run(){
+    network->startThreadReceiveMessage();
 
 }
