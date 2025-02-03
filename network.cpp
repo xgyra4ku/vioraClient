@@ -63,17 +63,20 @@ void Network::stopThreadSendMessage(){
     }
 }
 
+
 void Network::addMessageToBuffer(std::string message) {
     Message msg;
     msg.data["msg"] = std::move(message);
-    msg.data["key"] = generateCode();
+    msg.data["key"] = generateCode(6);
     msg.data["type"] = "message";
+    sendMutex.lock();
     newMessages.push_back(msg);
-}
+} 
 
 void Network::SendMessages(SOCKET socket, MainWindow &w) {
     while (!stop_flag_send) {
         if (isConnected) {
+            sendMutex.lock();
             if (newMessages.empty()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(300));
                 continue;
@@ -96,11 +99,11 @@ void Network::SendMessages(SOCKET socket, MainWindow &w) {
 }
 
 void Network::ReceiveMessages(SOCKET socket, MainWindow &w) {
-    Message bufferMsg;
-    std::vector<char> receivedBuffer(1024);
     while (!stop_flag_receive) {
         if (isConnected) {
-            int bytesReceived = recv(socket, receivedBuffer.data(), receivedBuffer.size(), 0);
+            Message bufferMsg;
+            std::vector<char> receivedBuffer(1024);
+            const int bytesReceived = recv(socket, receivedBuffer.data(), receivedBuffer.size(), 0);
             if (bytesReceived <= 0) {
                 std::cout << "Disconnected from server\n";
                 isConnected = false;

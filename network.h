@@ -9,6 +9,9 @@
 #include <ws2tcpip.h>
 #include <thread>
 #include <random>
+#include <chrono>
+#include <vector>
+#include <mutex>
 
 class Network
 {
@@ -19,6 +22,8 @@ class Network
     SOCKET clientSocket;
 
     std::thread* threadReceiveMessage, *threadSendMessage;
+    std::mutex sendMutex, receiveMutex;
+
     bool isConnected, stop_flag_receive, stop_flag_send;
 
     void ReceiveMessages(SOCKET socket, MainWindow &w);

@@ -25,5 +25,5 @@ Core::~Core() {
 
 void Core::run(){
     network->startThreadReceiveMessage();
-
+    network->startThreadSendMessage();
 }
