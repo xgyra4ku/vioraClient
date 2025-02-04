@@ -81,14 +81,6 @@ build CMakeFiles/voicebet.dir/network.cpp.obj: CXX_COMPILER__voicebet_unscanned_
   OBJECT_DIR = CMakeFiles\voicebet.dir
   OBJECT_FILE_DIR = CMakeFiles\voicebet.dir
 
-build CMakeFiles/voicebet.dir/core.cpp.obj: CXX_COMPILER__voicebet_unscanned_Debug E$:/C_Projects/qt_p/voicebet/core.cpp || cmake_object_order_depends_target_voicebet
-  DEFINES = -DMINGW_HAS_SECURE_API=1 -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NEEDS_QMAIN -DQT_WIDGETS_LIB -DUNICODE -DWIN32 -DWIN64 -DWINVER=0x0A00 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -D_UNICODE -D_WIN32_WINNT=0x0A00 -D_WIN64
-  DEP_FILE = CMakeFiles\voicebet.dir\core.cpp.obj.d
-  FLAGS = -g -std=gnu++17 -fdiagnostics-color=always
-  INCLUDES = -IE:/C_Projects/qt_p/voicebet/cmake-build-debug/voicebet_autogen/include -isystem C:/msys64/mingw64/include/qt6/QtCore -isystem C:/msys64/mingw64/include/qt6 -isystem C:/msys64/mingw64/share/qt6/mkspecs/win32-g++ -isystem C:/msys64/mingw64/include/qt6/QtWidgets -isystem C:/msys64/mingw64/include/qt6/QtGui
-  OBJECT_DIR = CMakeFiles\voicebet.dir
-  OBJECT_FILE_DIR = CMakeFiles\voicebet.dir
-
 
 # =============================================================================
 # Link build statements for EXECUTABLE target voicebet
@@ -97,7 +89,7 @@ build CMakeFiles/voicebet.dir/core.cpp.obj: CXX_COMPILER__voicebet_unscanned_Deb
 #############################################
 # Link the executable voicebet.exe
 
-build voicebet.exe: CXX_EXECUTABLE_LINKER__voicebet_Debug CMakeFiles/voicebet.dir/voicebet_autogen/mocs_compilation.cpp.obj CMakeFiles/voicebet.dir/main.cpp.obj CMakeFiles/voicebet.dir/mainwindow.cpp.obj CMakeFiles/voicebet.dir/network.cpp.obj CMakeFiles/voicebet.dir/core.cpp.obj | C$:/msys64/mingw64/lib/libQt6Widgets.dll.a C$:/msys64/mingw64/lib/libQt6Gui.dll.a C$:/msys64/mingw64/lib/libQt6Core.dll.a C$:/msys64/mingw64/lib/libQt6EntryPoint.a || voicebet_autogen voicebet_autogen_timestamp_deps
+build voicebet.exe: CXX_EXECUTABLE_LINKER__voicebet_Debug CMakeFiles/voicebet.dir/voicebet_autogen/mocs_compilation.cpp.obj CMakeFiles/voicebet.dir/main.cpp.obj CMakeFiles/voicebet.dir/mainwindow.cpp.obj CMakeFiles/voicebet.dir/network.cpp.obj | C$:/msys64/mingw64/lib/libQt6Widgets.dll.a C$:/msys64/mingw64/lib/libQt6Gui.dll.a C$:/msys64/mingw64/lib/libQt6Core.dll.a C$:/msys64/mingw64/lib/libQt6EntryPoint.a || voicebet_autogen voicebet_autogen_timestamp_deps
   FLAGS = -g
   LINK_FLAGS = -mwindows
   LINK_LIBRARIES = C:/msys64/mingw64/lib/libQt6Widgets.dll.a  -lws2_32  C:/msys64/mingw64/lib/libQt6Gui.dll.a  C:/msys64/mingw64/lib/libQt6Core.dll.a  -lmpr  -luserenv  -lmingw32  C:/msys64/mingw64/lib/libQt6EntryPoint.a  -lshell32  -ld3d11  -ldxgi  -ldxguid  -ld3d12  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32

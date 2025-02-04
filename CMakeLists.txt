@@ -24,7 +24,6 @@ set(PROJECT_SOURCES
         mainwindow.ui
         network.h network.cpp
         structure.h
-        core.h core.cpp
         ${TS_FILES}
 )
 
@@ -35,7 +34,6 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         network.h network.cpp
         structure.h
-        core.h core.cpp
     )
 
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})

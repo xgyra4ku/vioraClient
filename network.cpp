@@ -2,19 +2,22 @@
 #include "mainwindow.h"
 #include "structure.h"
 
-#include <QMainWindow>
 #include <iostream>
 #include <utility>
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <thread>
+#include <random>
+#include <chrono>
+#include <vector>
+#include <mutex>
 
-Network::Network(MainWindow& w)
-    : isConnected(false)
+Network::Network()
+    : serverAddr{}
     , clientSocket{}
-    , serverAddr{}
+    , isConnected(false)
     , stop_flag_receive(false)
     , stop_flag_send(false)
-    , w(&w)
 {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -33,15 +36,19 @@ Network::Network(MainWindow& w)
 
 Network::~Network() {
     stop_flag_receive = true;
+    stop_flag_send = true;
     if (threadReceiveMessage->joinable()){
         threadReceiveMessage->join();
+    }
+    if (threadSendMessage->joinable()){
+        threadSendMessage->join();
     }
     closesocket(clientSocket);
     WSACleanup();
 }
-void Network::startThreadReceiveMessage(){
+void Network::startThreadReceiveMessage(std::vector<Message>& queue_Received_Messages){
     stop_flag_receive = false;
-    threadReceiveMessage = new std::thread(&Network::ReceiveMessages, this, clientSocket, std::ref(*w));
+    threadReceiveMessage = new std::thread(&Network::ReceiveMessages, this, clientSocket, std::ref(queue_Received_Messages));
 }
 
 void Network::stopThreadReceiveMessage(){
@@ -53,7 +60,7 @@ void Network::stopThreadReceiveMessage(){
 
 void Network::startThreadSendMessage(){
     stop_flag_send = false;
-    threadSendMessage = new std::thread(&Network::SendMessages, this, clientSocket, std::ref(*w));
+    threadSendMessage = new std::thread(&Network::SendMessages, this, clientSocket);
 }
 
 void Network::stopThreadSendMessage(){
@@ -69,14 +76,12 @@ void Network::addMessageToBuffer(std::string message) {
     msg.data["msg"] = std::move(message);
     msg.data["key"] = generateCode(6);
     msg.data["type"] = "message";
-    sendMutex.lock();
     newMessages.push_back(msg);
 } 
 
-void Network::SendMessages(SOCKET socket, MainWindow &w) {
+void Network::SendMessages(SOCKET socket) {
     while (!stop_flag_send) {
         if (isConnected) {
-            sendMutex.lock();
             if (newMessages.empty()) {
                 std::this_thread::sleep_for(std::chrono::milliseconds(300));
                 continue;
@@ -98,7 +103,7 @@ void Network::SendMessages(SOCKET socket, MainWindow &w) {
     }
 }
 
-void Network::ReceiveMessages(SOCKET socket, MainWindow &w) {
+void Network::ReceiveMessages(SOCKET socket, std::vector<Message>& queue_Received_Messages) {
     while (!stop_flag_receive) {
         if (isConnected) {
             Message bufferMsg;
@@ -131,11 +136,11 @@ void Network::ReceiveMessages(SOCKET socket, MainWindow &w) {
 bool Network::tryConnection(){
     if (connect(clientSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
         std::cerr << "Connect failed\n";
-        return false;
+        return true
+        ;
     }
     std::cout << "Connected to server\n";
     return true;
-
 }
 
 std::string Network::generateCode(const int length = 6) {
@@ -153,6 +158,11 @@ std::string Network::generateCode(const int length = 6) {
         code += characters[distribution(generator)];
     }
     return code;
+}
+
+void Network::closeConnection() const {
+    closesocket(clientSocket);
+    WSACleanup();
 }
 
 

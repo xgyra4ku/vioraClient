@@ -260,12 +260,6 @@
 	"HEADERS" : 
 	[
 		[
-			"E:/C_Projects/qt_p/voicebet/core.h",
-			"MU",
-			"EWIEGA46WW/moc_core.cpp",
-			null
-		],
-		[
 			"E:/C_Projects/qt_p/voicebet/mainwindow.h",
 			"MU",
 			"EWIEGA46WW/moc_mainwindow.cpp",
@@ -356,7 +350,6 @@
 	"SETTINGS_FILE" : "E:/C_Projects/qt_p/voicebet/cmake-build-debug/CMakeFiles/voicebet_autogen.dir/AutogenUsed.txt",
 	"SOURCES" : 
 	[
-		[ "E:/C_Projects/qt_p/voicebet/core.cpp", "MU", null ],
 		[ "E:/C_Projects/qt_p/voicebet/main.cpp", "MU", null ],
 		[ "E:/C_Projects/qt_p/voicebet/mainwindow.cpp", "MU", null ],
 		[ "E:/C_Projects/qt_p/voicebet/network.cpp", "MU", null ]

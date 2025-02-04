@@ -3,12 +3,17 @@
 #include <QLabel>
 #include <QScrollBar>
 #include <QTimer>
+#include <iostream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , messageLayout(new QVBoxLayout) // Создаем макет
+    , scrollArea(new QScrollArea)
+    , scrollWidget(new QWidget)
+    , messageLayout(new QVBoxLayout)
+    , stop_flag_processing_message(false)
 {
+    std::cout << 1 << std::endl;
     ui->setupUi(this);
 
     // Настраиваем содержимое scrollArea
@@ -18,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     if (ui->scrollAreaWidgetContents->layout()) {
         delete ui->scrollAreaWidgetContents->layout();
     }
+    std::cout << 2 << std::endl;
 
     // Устанавливаем динамически созданный макет
     ui->scrollAreaWidgetContents->setLayout(messageLayout);
@@ -31,17 +37,39 @@ MainWindow::MainWindow(QWidget *parent)
             ui->scrollAreaMessage->verticalScrollBar()->maximum()
             );
     });
+    std::cout << 3 << std::endl;
+    network = new Network();
+    network->startThreadReceiveMessage(queue_Received_Messages);
+    network->startThreadSendMessage();
+    startThreadProcessingMessage();
+
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
+    network->stopThreadReceiveMessage();
+    network->stopThreadSendMessage();
+    network->closeConnection();
+    stopThreadProcessingMessage();
     delete ui;
+    delete network;
 }
 
-void MainWindow::addSentMessage(const QString &message)
-{
+void MainWindow::startThreadProcessingMessage() {
+    stop_flag_processing_message = false;
+    threadProcessingMessage = new std::thread(&MainWindow::ProcessingMessage, this);
+}
+
+void MainWindow::stopThreadProcessingMessage() {
+    stop_flag_processing_message = true;
+    if (threadProcessingMessage->joinable()) {
+        threadProcessingMessage->join();
+    }
+}
+
+
+void MainWindow::addSentMessage(const QString &message) {
     // Создаем виджет сообщения
-    QLabel *messageLabel = new QLabel("Вы: " + message);
+    auto *messageLabel = new QLabel("Вы: " + message);
     messageLabel->setAlignment(Qt::AlignRight);
     messageLabel->setStyleSheet("background-color: #25b5b1; padding: 5px; border-radius: 8px;");
 
@@ -57,9 +85,8 @@ void MainWindow::addSentMessage(const QString &message)
 }
 
 
-void MainWindow::addReceivedMessage(const QString &message)
-{
-    QLabel *messageLabel = new QLabel("Собеседник: " + message);
+void MainWindow::addReceivedMessage(const QString &message) {
+    auto *messageLabel = new QLabel("Собеседник: " + message);
     messageLabel->setAlignment(Qt::AlignLeft);
     messageLabel->setStyleSheet("background-color: #7d7d7d; padding: 5px; border-radius: 8px;");
 
@@ -72,8 +99,22 @@ void MainWindow::addReceivedMessage(const QString &message)
     });
 }
 
-void MainWindow::on_pushButton_pressed()
-{
-
+void MainWindow::on_pushButton_pressed() {
+    QString message = ui->lineEdit->text();
+    ui->lineEdit->clear();
+    addSentMessage(message);
+    network->addMessageToBuffer(message.toStdString());
 }
+
+void MainWindow::ProcessingMessage() {
+    while (!stop_flag_processing_message) {
+        if (!queue_Received_Messages.empty()) {
+            addReceivedMessage(queue_Received_Messages.back().data["msg"].c_str());
+            queue_Received_Messages.pop_back();
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    }
+}
+
 

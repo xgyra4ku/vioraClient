@@ -1,15 +1,11 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include "mainwindow.h"
 #include "structure.h"
 
-#include <iostream>
 #include <winsock2.h>
-#include <ws2tcpip.h>
 #include <thread>
 #include <random>
-#include <chrono>
 #include <vector>
 #include <mutex>
 
@@ -17,32 +13,31 @@ class Network
 {
     std::vector<Message> newMessages;
 
-    MainWindow *w;
-    sockaddr_in serverAddr, clientAddr;
+    sockaddr_in serverAddr, clientAddr{};
     SOCKET clientSocket;
 
-    std::thread* threadReceiveMessage, *threadSendMessage;
+    std::thread* threadReceiveMessage{}, *threadSendMessage{};
     std::mutex sendMutex, receiveMutex;
 
     bool isConnected, stop_flag_receive, stop_flag_send;
 
-    void ReceiveMessages(SOCKET socket, MainWindow &w);
+    void ReceiveMessages(SOCKET socket, std::vector<Message>& queue_Received_Messages);
 
-    void SendMessages(SOCKET socket, MainWindow &w);
+    void SendMessages(SOCKET socket);
 
 public:
-    Network(MainWindow& w);
+    Network();
     ~Network();
 
-    void startThreadReceiveMessage();
-
-    void stopThreadReceiveMessage();
+    void startThreadReceiveMessage(std::vector<Message>& queue_Received_Messages);
 
     void startThreadSendMessage();
 
+    void stopThreadReceiveMessage();
+
     void stopThreadSendMessage();
 
-    void closeConnection();
+    void closeConnection() const;
 
     void addMessageToBuffer(std::string message);
 
