@@ -17,7 +17,7 @@ class Network
     SOCKET clientSocket;
 
     std::thread* threadReceiveMessage{}, *threadSendMessage{};
-    std::mutex sendMutex, receiveMutex;
+    std::mutex sendMutex, receiveMutex, connMutex;
 
     bool isConnected, stop_flag_receive, stop_flag_send;
 
@@ -42,6 +42,7 @@ public:
     void addMessageToBuffer(std::string message);
 
     bool tryConnection();
+    SOCKET createNewSocket();
 
     static std::string generateCode(int length);
 };

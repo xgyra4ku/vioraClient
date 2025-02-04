@@ -13,7 +13,6 @@ MainWindow::MainWindow(QWidget *parent)
     , messageLayout(new QVBoxLayout)
     , stop_flag_processing_message(false)
 {
-    std::cout << 1 << std::endl;
     ui->setupUi(this);
 
     // Настраиваем содержимое scrollArea
@@ -23,7 +22,6 @@ MainWindow::MainWindow(QWidget *parent)
     if (ui->scrollAreaWidgetContents->layout()) {
         delete ui->scrollAreaWidgetContents->layout();
     }
-    std::cout << 2 << std::endl;
 
     // Устанавливаем динамически созданный макет
     ui->scrollAreaWidgetContents->setLayout(messageLayout);
@@ -37,7 +35,8 @@ MainWindow::MainWindow(QWidget *parent)
             ui->scrollAreaMessage->verticalScrollBar()->maximum()
             );
     });
-    std::cout << 3 << std::endl;
+    connect(this, &MainWindow::messageReceived, this, &MainWindow::addReceivedMessage);
+
     network = new Network();
     network->startThreadReceiveMessage(queue_Received_Messages);
     network->startThreadSendMessage();
@@ -46,9 +45,6 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow() {
-    network->stopThreadReceiveMessage();
-    network->stopThreadSendMessage();
-    network->closeConnection();
     stopThreadProcessingMessage();
     delete ui;
     delete network;
@@ -86,7 +82,7 @@ void MainWindow::addSentMessage(const QString &message) {
 
 
 void MainWindow::addReceivedMessage(const QString &message) {
-    auto *messageLabel = new QLabel("Собеседник: " + message);
+    QLabel *messageLabel = new QLabel("Собеседник: " + message);
     messageLabel->setAlignment(Qt::AlignLeft);
     messageLabel->setStyleSheet("background-color: #7d7d7d; padding: 5px; border-radius: 8px;");
 
@@ -109,12 +105,12 @@ void MainWindow::on_pushButton_pressed() {
 void MainWindow::ProcessingMessage() {
     while (!stop_flag_processing_message) {
         if (!queue_Received_Messages.empty()) {
-            addReceivedMessage(queue_Received_Messages.back().data["msg"].c_str());
+            QString msg = QString::fromStdString(queue_Received_Messages.back().data["msg"]);
             queue_Received_Messages.pop_back();
+
+            emit messageReceived(msg);  // Передаем в GUI-поток через сигнал
         } else {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
     }
 }
-
-

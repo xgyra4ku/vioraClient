@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <cstring>
 
 struct Message {
     std::map<std::string, std::string> data; // Данные сообщения
@@ -11,35 +12,49 @@ struct Message {
     // Сериализация в массив байт
     [[nodiscard]] std::vector<char> serialize() const {
         std::vector<char> buffer;
-
-        // Сериализация data
         for (const auto& [key, value] : data) {
-            // Добавляем ключ
+            size_t key_size = key.size();
+            size_t value_size = value.size();
+
+            // Запись размеров ключа и значения
+            buffer.insert(buffer.end(), reinterpret_cast<const char*>(&key_size), reinterpret_cast<const char*>(&key_size) + sizeof(size_t));
             buffer.insert(buffer.end(), key.begin(), key.end());
-            buffer.push_back('\0'); // Разделитель
 
-            // Добавляем значение
+            buffer.insert(buffer.end(), reinterpret_cast<const char*>(&value_size), reinterpret_cast<const char*>(&value_size) + sizeof(size_t));
             buffer.insert(buffer.end(), value.begin(), value.end());
-            buffer.push_back('\0'); // Разделитель
         }
-
         return buffer;
     }
 
     // Десериализация из массива байт
     void deserialize(const std::vector<char>& buffer) {
-        // Десериализация data
-        size_t offset = sizeof(int);
+        data.clear();
+        size_t offset = 0;
         while (offset < buffer.size()) {
+            if (offset + sizeof(size_t) > buffer.size()) break;
+
+            // Чтение размера ключа
+            size_t key_size;
+            std::memcpy(&key_size, buffer.data() + offset, sizeof(size_t));
+            offset += sizeof(size_t);
+            if (offset + key_size > buffer.size()) break;
+
             // Чтение ключа
-            std::string key(buffer.data() + offset);
-            offset += key.size() + 1;
+            std::string key(buffer.data() + offset, key_size);
+            offset += key_size;
+
+            if (offset + sizeof(size_t) > buffer.size()) break;
+
+            // Чтение размера значения
+            size_t value_size;
+            std::memcpy(&value_size, buffer.data() + offset, sizeof(size_t));
+            offset += sizeof(size_t);
+            if (offset + value_size > buffer.size()) break;
 
             // Чтение значения
-            std::string value(buffer.data() + offset);
-            offset += value.size() + 1;
+            std::string value(buffer.data() + offset, value_size);
+            offset += value_size;
 
-            // Добавление в map
             data[key] = value;
         }
     }

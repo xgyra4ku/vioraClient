@@ -35,6 +35,9 @@ private slots:
     void ProcessingMessage();
     void startThreadProcessingMessage();
     void stopThreadProcessingMessage();
+signals:
+    void messageReceived(const QString &message);
+
 
 private:
     Ui::MainWindow *ui;

@@ -76,18 +76,23 @@ void Network::addMessageToBuffer(std::string message) {
     msg.data["msg"] = std::move(message);
     msg.data["key"] = generateCode(6);
     msg.data["type"] = "message";
+
+    std::lock_guard<std::mutex> lock(sendMutex);
     newMessages.push_back(msg);
-} 
+}
 
 void Network::SendMessages(SOCKET socket) {
     while (!stop_flag_send) {
         if (isConnected) {
+            sendMutex.lock();
             if (newMessages.empty()) {
+                sendMutex.unlock();
                 std::this_thread::sleep_for(std::chrono::milliseconds(300));
                 continue;
             }
             Message bufferMsg = newMessages.back();
             newMessages.pop_back();
+            sendMutex.unlock();
             std::vector<char> buffer = bufferMsg.serialize();
             int bytesSent = send(socket, buffer.data(), buffer.size(), 0);
             if (bytesSent <= 0) {
@@ -116,6 +121,7 @@ void Network::ReceiveMessages(SOCKET socket, std::vector<Message>& queue_Receive
             }
             receivedBuffer.resize(bytesReceived);
             bufferMsg.deserialize(receivedBuffer);
+            queue_Received_Messages.push_back(bufferMsg);
 
             for (const auto& [key, value] : bufferMsg.data) {
                 std::cout << key << ": " << value << std::endl;
